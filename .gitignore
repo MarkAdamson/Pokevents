@@ -1,0 +1,9 @@
+
+client/__history/*
+client/API.pas
+*.dcu
+*.local
+*.identcache
+*.res
+*.skincfg
+*.exe
