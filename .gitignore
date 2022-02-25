@@ -7,3 +7,4 @@ client/API.pas
 *.res
 *.skincfg
 *.exe
+server/package.yml
