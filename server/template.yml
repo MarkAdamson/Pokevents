@@ -1,0 +1,146 @@
+AWSTemplateFormatVersion : '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: "Pokemon Events Calendar"
+
+Globals:
+  Function:
+    Runtime: nodejs14.x
+    Timeout: 30
+    Tags:
+      Application: Pokemon Events Calendar
+    Environment:
+      Variables:
+        TBL_EVENTS: !Ref EventsTable
+
+Parameters:
+  Stage:
+    Type: String
+    AllowedValues:
+      - dev
+      - test
+      - prod
+
+Resources:
+  PokeventsDomainCert:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Sub api-${Stage}.pokevents.xyz
+      ValidationMethod: DNS
+    
+  PokeventsApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Sub "${Stage}"
+      Auth:
+        ApiKeyRequired: true # sets for all methods
+        UsagePlan:
+          CreateUsagePlan: PER_API
+          UsagePlanName: Unlimited
+      Domain:
+        DomainName: !Sub api-${Stage}.pokevents.xyz
+        CertificateArn: !Ref PokeventsDomainCert
+            
+  GetCalendarFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: js/
+      Handler: events.calendar
+      Policies: AmazonDynamoDBReadOnlyAccess
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PokeventsApi
+            Path: /calendar
+            Method: GET
+            Auth:
+              ApiKeyRequired: false
+  
+  CreateEventFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: js/
+      Handler: events.create
+      Policies: AmazonDynamoDBFullAccess
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PokeventsApi
+            Path: /events
+            Method: POST
+  
+  UpdateEventFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: js/
+      Handler: events.update
+      Policies: AmazonDynamoDBFullAccess
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PokeventsApi
+            Path: /events/{ID}
+            Method: PUT
+  
+  DeleteEventFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: js/
+      Handler: events.delete
+      Policies: AmazonDynamoDBFullAccess
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PokeventsApi
+            Path: /events/{ID}
+            Method: DELETE
+  
+  GetEventsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: js/
+      Handler: events.get
+      Policies: AmazonDynamoDBReadOnlyAccess
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PokeventsApi
+            Path: /events
+            Method: GET
+  
+  EventsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: ID
+          AttributeType: S
+        - AttributeName: Region
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ID
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: idxRegion
+          KeySchema:
+            - AttributeName: Region
+              KeyType: HASH
+          Projection: 
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+        
+Outputs:
+  ApiGateway:
+    Description: "The URL is:"
+    Value: !Sub "https://${PokeventsApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/"
+  ApiKey:
+    Description: "You can find your API Key in the AWS console: (Put in the request HEADER as 'x-api-key')"
+    Value: !Sub "https://console.aws.amazon.com/apigateway/home?region=${AWS::Region}#/api-keys/${PokeventsApiApiKey}"
