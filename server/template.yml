@@ -32,15 +32,6 @@ Resources:
     Properties:
       DomainName: !If [IsProduction, !Sub "api.${Domain}", !Sub "api-${Stage}.${Domain}"]
       ValidationMethod: DNS
-  
-  PokeventsWebCert:
-    Type: AWS::CertificateManager::Certificate
-    Properties:
-      DomainName: !If [IsProduction, !Sub "www.${Domain}", !Sub "www-${Stage}.${Domain}"]
-      ValidationMethod: DNS
-      # DomainValidationOptions:
-      #   - DomainName: !If [IsProduction, !Sub "www.${Domain}", !Sub "www-${Stage}.${Domain}"]
-      #     HostedZoneId: Z2FDTNDATAQYW2
     
   PokeventsApi:
     Type: AWS::Serverless::Api
@@ -185,12 +176,24 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         RestrictPublicBuckets: true
+  
+  PokeventsWebCert:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !If [IsProduction, !Sub "www.${Domain}", !Sub "www-${Stage}.${Domain}"]
+      ValidationMethod: DNS
+      # SubjectAlternativeNames:
+      #   - !If [IsProduction, !Sub "www.${Domain}", !Sub "www-${Stage}.${Domain}"]
+      # DomainValidationOptions:
+      #   - DomainName: !If [IsProduction, !Sub "www.${Domain}", !Sub "www-${Stage}.${Domain}"]
+      #     HostedZoneId: Z2FDTNDATAQYW2
         
   CFOriginAccessIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties:
       CloudFrontOriginAccessIdentityConfig:
         Comment: !Sub 'Pokevents CloudFront OAI (${Stage})'
+        
   CFDistribution:
     Type: AWS::CloudFront::Distribution
     DependsOn:
@@ -205,7 +208,7 @@ Resources:
         PriceClass: PriceClass_200
         DefaultRootObject: index.html
         Aliases:
-          - !Ref Domain
+          # - !Ref Domain
           - !If [IsProduction, !Sub "www.${Domain}", !Sub "www-${Stage}.${Domain}"]
         Origins:
           - Id: !Sub "S3-${Domain}"

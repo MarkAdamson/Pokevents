@@ -1,7 +1,7 @@
 'use strict';
 
 const aws = require('aws-sdk');
-aws.config.update({region: 'eu-west-1'});
+aws.config.update({region: process.env.AWS_REGION});
 const ddb = new aws.DynamoDB.DocumentClient();
 
 const ical = require('ical-generator');
