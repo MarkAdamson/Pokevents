@@ -21,7 +21,9 @@ const GameNames = {
   BD: "Brilliant Diamond",
   SP: "Shining Pearl",
   LA: "Legends: Arceus",
-  HO: "Home"
+  HO: "Home",
+  SC: "Scarlet",
+  VI: "Violet"
 };
 
 const Fields = [
@@ -226,6 +228,8 @@ exports.calendar = async function(event, context, callback) {
   }
   
   // console.log(params);
+    
+  var editLink = "https://www" + process.env.DOMAIN + "?region=" + event.queryStringParameters.region + "&games=" + event.queryStringParameters.games;
   
   function pok2cal(pokevent) {
     if (pokevent.EndDate) {
@@ -240,6 +244,7 @@ exports.calendar = async function(event, context, callback) {
       summary: pokevent.Title,
       start: new Date(pokevent.StartDate.substring(0,10)),
       end: endDate,
+      floating: true,
       location: pokevent.Locations.join(", "),
       busystatus: ical.ICalEventBusyStatus.FREE,
       description:
@@ -258,8 +263,9 @@ exports.calendar = async function(event, context, callback) {
         (pokevent.TID ? "ID: " + pokevent.TID + "\n" : "") +
         (pokevent.Nature ? "Nature: " + pokevent.Nature + "\n" : "") +
         (pokevent.Ability ? "Ability: " + pokevent.Ability + "\n" : "") +
-        (pokevent.HoldItem ? "Hold Item: " + pokevent.HoldItem : "") +
-        (pokevent.Moves && pokevent.Moves.length ? "\nMoves:\n" + pokevent.Moves.map(move => " • " + move).join("\n") : "")
+        (pokevent.HoldItem ? "Hold Item: " + pokevent.HoldItem + "\n" : "") +
+        (pokevent.Moves && pokevent.Moves.length ? "Moves:\n" + pokevent.Moves.map(move => " • " + move).join("\n") + "\n" : "") +
+        "\nEdit your calendar: " + editLink
     }
   }
     

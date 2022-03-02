@@ -11,6 +11,7 @@ Globals:
     Environment:
       Variables:
         TBL_EVENTS: !Ref EventsTable
+        DOMAIN: !If [IsProduction, !Sub ".${Domain}", !Sub "-${Stage}.${Domain}"]
 
 Parameters:
   Stage:
@@ -32,6 +33,12 @@ Resources:
     Properties:
       DomainName: !If [IsProduction, !Sub "api.${Domain}", !Sub "api-${Stage}.${Domain}"]
       ValidationMethod: DNS
+      
+  PokeventsCalendarCert:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !If [IsProduction, !Sub "calendar.${Domain}", !Sub "calendar-${Stage}.${Domain}"]
+      ValidationMethod: DNS
     
   PokeventsApi:
     Type: AWS::Serverless::Api
@@ -45,6 +52,14 @@ Resources:
       Domain:
         DomainName: !If [IsProduction, !Sub "api.${Domain}", !Sub "api-${Stage}.${Domain}"]
         CertificateArn: !Ref PokeventsApiCert
+        
+  PokeventsCalendar:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Sub "${Stage}"
+      Domain:
+        DomainName: !If [IsProduction, !Sub "calendar.${Domain}", !Sub "calendar-${Stage}.${Domain}"]
+        CertificateArn: !Ref PokeventsCalendarCert
   
   EventsTable:
     Type: AWS::DynamoDB::Table
@@ -81,11 +96,9 @@ Resources:
         Api:
           Type: Api
           Properties:
-            RestApiId: !Ref PokeventsApi
-            Path: /calendar
+            RestApiId: !Ref PokeventsCalendar
+            Path: /
             Method: GET
-            Auth:
-              ApiKeyRequired: false
   
   CreateEventFunction:
     Type: AWS::Serverless::Function
