@@ -11,6 +11,7 @@ Globals:
     Environment:
       Variables:
         TBL_EVENTS: !Ref EventsTable
+        DOMAIN: !If [IsProduction, !Sub ".${Domain}", !Sub "-${Stage}.${Domain}"]
 
 Parameters:
   Stage:
@@ -19,12 +20,24 @@ Parameters:
       - dev
       - test
       - prod
+  Domain:
+    Type: String
+    Default: pokevents.xyz
+      
+Conditions:
+  IsProduction: !Equals [!Ref Stage, prod]
 
 Resources:
-  PokeventsDomainCert:
+  PokeventsApiCert:
     Type: AWS::CertificateManager::Certificate
     Properties:
-      DomainName: !Sub api-${Stage}.pokevents.xyz
+      DomainName: !If [IsProduction, !Sub "api.${Domain}", !Sub "api-${Stage}.${Domain}"]
+      ValidationMethod: DNS
+      
+  PokeventsCalendarCert:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !If [IsProduction, !Sub "calendar.${Domain}", !Sub "calendar-${Stage}.${Domain}"]
       ValidationMethod: DNS
     
   PokeventsApi:
@@ -37,8 +50,41 @@ Resources:
           CreateUsagePlan: PER_API
           UsagePlanName: Unlimited
       Domain:
-        DomainName: !Sub api-${Stage}.pokevents.xyz
-        CertificateArn: !Ref PokeventsDomainCert
+        DomainName: !If [IsProduction, !Sub "api.${Domain}", !Sub "api-${Stage}.${Domain}"]
+        CertificateArn: !Ref PokeventsApiCert
+        
+  PokeventsCalendar:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Sub "${Stage}"
+      Domain:
+        DomainName: !If [IsProduction, !Sub "calendar.${Domain}", !Sub "calendar-${Stage}.${Domain}"]
+        CertificateArn: !Ref PokeventsCalendarCert
+  
+  EventsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: ID
+          AttributeType: S
+        - AttributeName: Region
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ID
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: idxRegion
+          KeySchema:
+            - AttributeName: Region
+              KeyType: HASH
+          Projection: 
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
             
   GetCalendarFunction:
     Type: AWS::Serverless::Function
@@ -50,11 +96,9 @@ Resources:
         Api:
           Type: Api
           Properties:
-            RestApiId: !Ref PokeventsApi
-            Path: /calendar
+            RestApiId: !Ref PokeventsCalendar
+            Path: /
             Method: GET
-            Auth:
-              ApiKeyRequired: false
   
   CreateEventFunction:
     Type: AWS::Serverless::Function
@@ -111,36 +155,122 @@ Resources:
             RestApiId: !Ref PokeventsApi
             Path: /events
             Method: GET
-  
-  EventsTable:
-    Type: AWS::DynamoDB::Table
+        
+  WebsiteBucket:
+    Type: AWS::S3::Bucket
     Properties:
-      AttributeDefinitions:
-        - AttributeName: ID
-          AttributeType: S
-        - AttributeName: Region
-          AttributeType: S
-      KeySchema:
-        - AttributeName: ID
-          KeyType: HASH
-      GlobalSecondaryIndexes:
-        - IndexName: idxRegion
-          KeySchema:
-            - AttributeName: Region
-              KeyType: HASH
-          Projection: 
-            ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+      BucketName: !If [IsProduction, !Sub "www.${Domain}", !Sub "www-${Stage}.${Domain}"]
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      AccessControl: Private
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+        
+  LogBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !If [IsProduction, !Sub "logs.${Domain}", !Sub "logs-${Stage}.${Domain}"]
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      AccessControl: Private
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+  
+  PokeventsWebCert:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !If [IsProduction, !Sub "www.${Domain}", !Sub "www-${Stage}.${Domain}"]
+      ValidationMethod: DNS
+      # SubjectAlternativeNames:
+      #   - !If [IsProduction, !Sub "www.${Domain}", !Sub "www-${Stage}.${Domain}"]
+      # DomainValidationOptions:
+      #   - DomainName: !If [IsProduction, !Sub "www.${Domain}", !Sub "www-${Stage}.${Domain}"]
+      #     HostedZoneId: Z2FDTNDATAQYW2
+        
+  CFOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub 'Pokevents CloudFront OAI (${Stage})'
+        
+  CFDistribution:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - WebsiteBucket
+      - LogBucket
+      - PokeventsWebCert
+    Properties:
+      DistributionConfig:
+        Enabled: 'true'
+        Comment: !Sub 'Distribution for Pokevents (${Stage})'
+        HttpVersion: http2
+        PriceClass: PriceClass_200
+        DefaultRootObject: index.html
+        Aliases:
+          # - !Ref Domain
+          - !If [IsProduction, !Sub "www.${Domain}", !Sub "www-${Stage}.${Domain}"]
+        Origins:
+          - Id: !Sub "S3-${Domain}"
+            DomainName: !If [IsProduction, !Sub 'www.${Domain}.s3.amazonaws.com', !Sub "www-${Stage}.${Domain}.s3.amazonaws.com"]
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CFOriginAccessIdentity}'
+        DefaultCacheBehavior:
+          TargetOriginId: !Sub 'S3-${Domain}'
+          Compress: true
+          ForwardedValues:
+            QueryString: false
+            Headers:
+              - Origin
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: allow-all
+        CustomErrorResponses:
+          - ErrorCode: '403'
+            ResponsePagePath: /404.html
+            ResponseCode: '404'
+            ErrorCachingMinTTL: '30'
+        ViewerCertificate:
+          AcmCertificateArn: !Ref PokeventsWebCert
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2019
+        Logging:
+          IncludeCookies: false
+          Bucket: !If [IsProduction, !Sub "logs.${Domain}.s3.amazonaws.com", !Sub "logs-${Stage}.${Domain}.s3.amazonaws.com"]
+          Prefix: cf-logs
+          
+  WebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebsiteBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: s3:GetObject
+            Principal:
+              CanonicalUser: !GetAtt CFOriginAccessIdentity.S3CanonicalUserId
+            Resource: !Sub 'arn:aws:s3:::${WebsiteBucket}/*'
         
 Outputs:
   ApiGateway:
-    Description: "The URL is:"
-    Value: !Sub "https://${PokeventsApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/"
+    Description: "The API endpoint is:"
+    Value: !If [IsProduction, !Sub "https://api.${Domain}", !Sub "https://api-${Stage}.${Domain}"]
   ApiKey:
     Description: "You can find your API Key in the AWS console: (Put in the request HEADER as 'x-api-key')"
     Value: !Sub "https://console.aws.amazon.com/apigateway/home?region=${AWS::Region}#/api-keys/${PokeventsApiApiKey}"
+  Website:
+    Description: "The URL is:"
+    Value: !If [IsProduction, !Sub "https://www.${Domain}", !Sub "https://www-${Stage}.${Domain}"]

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Pokévents - Pokémon Distribution Event Calendar</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="main.css">
+</head>
+<body>
+
+<div class="header">
+  <h1>Pokévents</h1>
+  <h3>Never miss a mythical pokémon again!</h3>
+</div>
+
+<div class="row">
+  <div class="column">
+    <h2>1. Select your Region</h2>
+    <div>
+      <input type="radio" id="america" name="region" value="america">
+      <label for="america">America</label>
+    </div>
+    <div>
+      <input type="radio" id="europe" name="region" value="europe">
+      <label for="europe">Europe</label>
+    </div>
+    <div>
+      <input type="radio" id="japan" name="region" value="japan">
+      <label for="japan">Japan</label>
+    </div>
+    <div>
+      <input type="radio" id="other" name="region" value="other">
+      <label for="other">Other</label>
+    </div>
+  </div>
+  
+  <div class="column">
+    <h2>2. Select your Games</h2>
+    <div>
+      <input type="checkbox" id="go" name="go">
+      <label for="go">GO</label>
+    </div>
+    <div>
+      <input type="checkbox" id="sword" name="sword">
+      <label for="sword">Sword</label>
+    </div>
+    <div>
+      <input type="checkbox" id="shield" name="shield">
+      <label for="shield">Shield</label>
+    </div>
+    <div>
+      <input type="checkbox" id="letsgopikachu" name="letsgopikachu">
+      <label for="letsgopikachu">Let's Go, Pikachu!</label>
+    </div>
+    <div>
+      <input type="checkbox" id="letsgoevee" name="letsgoevee">
+      <label for="letsgoevee">Let's Go, Eevee!</label>
+    </div>
+    <div>
+      <input type="checkbox" id="brilliantdiamond" name="brilliantdiamond">
+      <label for="brilliantdiamond">Brilliant Diamond</label>
+    </div>
+    <div>
+      <input type="checkbox" id="shiningpearl" name="shiningpearl">
+      <label for="shiningpearl">Shining Pearl</label>
+    </div>
+    <div>
+      <input type="checkbox" id="legendsarceus" name="legendsarceus">
+      <label for="legendsarceus">Legends: Arceus</label>
+    </div>
+    <div>
+      <input type="checkbox" id="home" name="home">
+      <label for="home">Home</label>
+    </div>
+    <div>
+      <input type="checkbox" id="scarlet" name="scarlet">
+      <label for="scarlet">Scarlet</label>
+    </div>
+    <div>
+      <input type="checkbox" id="violet" name="violet">
+      <label for="violet">Violet</label>
+    </div>
+  </div>
+  
+  <div class="column">
+    <h2>3. Generate your Calendar</h2>
+    <button type="button">
+      Generate!
+    </button>
+  </div>
+</div>
+
+<div class="topnav">
+  <!--<a href="#">Link</a>
+  <a href="#">Link</a>
+  <a href="#">Link</a>-->
+  <p>https://api-dev.pokevents.xyz/calendar</p>
+</div>
+
+</body>
+</html>
+
+
