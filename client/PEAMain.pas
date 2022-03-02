@@ -140,9 +140,9 @@ type
     Actions: TActionList;
     actPost: TAction;
     mdsEventsHome: TBooleanField;
-    liHome: TdxLayoutGroup;
+    dxLayoutGroup13: TdxLayoutGroup;
     chkHome: TcxDBCheckBox;
-    dxLayoutItem1: TdxLayoutItem;
+    liHome: TdxLayoutItem;
     dbsLocations: TfraDBStrings;
     mdsEventsLocations: TMemoField;
     dbsMoves: TfraDBStrings;
@@ -151,6 +151,12 @@ type
     mdsEventsMoves: TMemoField;
     mdsEventsMarks: TMemoField;
     mdsEventsRibbons: TMemoField;
+    mdsEventsScarlet: TBooleanField;
+    mdsEventsViolet: TBooleanField;
+    chkScarlet: TcxDBCheckBox;
+    liScarlet: TdxLayoutItem;
+    chkViolet: TcxDBCheckBox;
+    liViolet: TdxLayoutItem;
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure dbsLocationsChange(Sender: TObject);
@@ -186,7 +192,7 @@ const
   GameField: array[TGame] of String =
     ('Sun', 'Moon', 'UltraSun', 'UltraMoon', 'GO', 'Sword', 'Shield',
      'LetsGoEevee', 'LetsGoPikachu', 'BrilliantDiamond', 'ShiningPearl',
-     'LegendsArceus','Home');
+     'LegendsArceus','Home','Scarlet','Violet');
 
 function TfrmPEAMain.GetCurrentEvent: TPokevent;
   procedure CollectStrings(FieldName: String; Collection: IList<String>);
@@ -334,19 +340,9 @@ begin
       mdsEventsGigantamax.AsBoolean := Events[ID].Gigantamax;
       mdsEventsStartDate.AsDateTime := Events[ID].StartDate;
       mdsEventsEndDate.AsVariant := Events[ID].EndDate;
-      mdsEventsSun.AsBoolean := gaSun in Events[ID].Games;
-      mdsEventsMoon.AsBoolean := gaMoon in Events[ID].Games;
-      mdsEventsUltraSun.AsBoolean := gaUltraSun in Events[ID].Games;
-      mdsEventsUltraMoon.AsBoolean := gaUltraMoon in Events[ID].Games;
-      mdsEventsGO.AsBoolean := gaGO in Events[ID].Games;
-      mdsEventsSword.AsBoolean := gaSword in Events[ID].Games;
-      mdsEventsShield.AsBoolean := gaShield in Events[ID].Games;
-      mdsEventsLetsGoEevee.AsBoolean := gaLetsGoEevee in Events[ID].Games;
-      mdsEventsLetsGoPikachu.AsBoolean := gaLetsGoPikachu in Events[ID].Games;
-      mdsEventsBrilliantDiamond.AsBoolean := gaBrilliantDiamond in Events[ID].Games;
-      mdsEventsShiningPearl.AsBoolean := gaShiningPearl in Events[ID].Games;
-      mdsEventsLegendsArceus.AsBoolean := gaPLA in Events[ID].Games;
-      mdsEventsHome.AsBoolean := gaHome in Events[ID].Games;
+
+      for var Game := Low(TGame) to High(TGame) do
+        mdsEvents.FieldByName(GameField[Game]).AsBoolean := Game in Events[ID].Games;
 
       ExtractStrings('Locations', Events[ID].Locations, dbsLocations);
       ExtractStrings('Moves', Events[ID].Moves, dbsMoves);
@@ -391,19 +387,9 @@ begin
   mdsEventsRegion.AsInteger := Ord(reWorldwide);
   mdsEventsShiny.AsBoolean := False;
   mdsEventsGigantamax.AsBoolean := False;
-  mdsEventsSun.AsBoolean := False;
-  mdsEventsMoon.AsBoolean := False;
-  mdsEventsUltraSun.AsBoolean := False;
-  mdsEventsUltraMoon.AsBoolean := False;
-  mdsEventsGO.AsBoolean := False;
-  mdsEventsSword.AsBoolean := False;
-  mdsEventsShield.AsBoolean := False;
-  mdsEventsLetsGoEevee.AsBoolean := False;
-  mdsEventsLetsGoPikachu.AsBoolean := False;
-  mdsEventsBrilliantDiamond.AsBoolean := False;
-  mdsEventsShiningPearl.AsBoolean := False;
-  mdsEventsLegendsArceus.AsBoolean := False;
-  mdsEventsHome.AsBoolean := False;
+
+  for var Game := Low(TGame) to High(TGame) do
+    mdsEvents.FieldByName(GameField[Game]).AsBoolean := False;
 end;
 
 procedure TfrmPEAMain.StringsChange(FieldName: String; Strings: TStrings);

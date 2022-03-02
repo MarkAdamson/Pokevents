@@ -517,11 +517,16 @@ object frmPEAMain: TfrmPEAMain
           item
             Value = 33.333333333333310000
           end>
+        inherited btnAdd: TcxButton
+          Height = 24
+        end
         inherited btnEdit: TcxButton
+          Top = 25
           Height = 25
         end
         inherited btnDelete: TcxButton
           Top = 50
+          Height = 24
         end
       end
       inherited lbStrings: TcxListBox
@@ -616,6 +621,17 @@ object frmPEAMain: TfrmPEAMain
           item
             Value = 33.333333333333310000
           end>
+        inherited btnAdd: TcxButton
+          Height = 24
+        end
+        inherited btnEdit: TcxButton
+          Top = 25
+          Height = 24
+        end
+        inherited btnDelete: TcxButton
+          Top = 49
+          Height = 24
+        end
       end
       inherited lbStrings: TcxListBox
         Width = 177
@@ -656,10 +672,45 @@ object frmPEAMain: TfrmPEAMain
           item
             Value = 33.333333333333310000
           end>
+        inherited btnAdd: TcxButton
+          Height = 24
+        end
+        inherited btnEdit: TcxButton
+          Top = 25
+          Height = 24
+        end
+        inherited btnDelete: TcxButton
+          Top = 49
+          Height = 24
+        end
       end
       inherited lbStrings: TcxListBox
         Height = 74
       end
+    end
+    object chkScarlet: TcxDBCheckBox
+      Left = 389
+      Top = 555
+      Caption = 'Scarlet'
+      DataBinding.DataField = 'Scarlet'
+      DataBinding.DataSource = dtsEvents
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebs3D
+      Style.HotTrack = False
+      Style.TransparentBorder = False
+      TabOrder = 34
+    end
+    object chkViolet: TcxDBCheckBox
+      Left = 389
+      Top = 578
+      Caption = 'Violet'
+      DataBinding.DataField = 'Violet'
+      DataBinding.DataSource = dtsEvents
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebs3D
+      Style.HotTrack = False
+      Style.TransparentBorder = False
+      TabOrder = 35
     end
     object dxLayoutControl1Group_Root: TdxLayoutGroup
       AlignHorz = ahClient
@@ -1100,15 +1151,16 @@ object frmPEAMain: TfrmPEAMain
       ControlOptions.ShowBorder = False
       Index = 3
     end
-    object liHome: TdxLayoutGroup
+    object dxLayoutGroup13: TdxLayoutGroup
       Parent = dxLayoutGroup9
       AlignHorz = ahClient
       CaptionOptions.Text = 'New Group'
+      ItemIndex = 2
       ShowBorder = False
       Index = 3
     end
-    object dxLayoutItem1: TdxLayoutItem
-      Parent = liHome
+    object liHome: TdxLayoutItem
+      Parent = dxLayoutGroup13
       CaptionOptions.Text = 'cxDBCheckBox1'
       CaptionOptions.Visible = False
       Control = chkHome
@@ -1116,6 +1168,26 @@ object frmPEAMain: TfrmPEAMain
       ControlOptions.OriginalWidth = 121
       ControlOptions.ShowBorder = False
       Index = 0
+    end
+    object liScarlet: TdxLayoutItem
+      Parent = dxLayoutGroup13
+      CaptionOptions.Text = 'cxDBCheckBox1'
+      CaptionOptions.Visible = False
+      Control = chkScarlet
+      ControlOptions.OriginalHeight = 17
+      ControlOptions.OriginalWidth = 121
+      ControlOptions.ShowBorder = False
+      Index = 1
+    end
+    object liViolet: TdxLayoutItem
+      Parent = dxLayoutGroup13
+      CaptionOptions.Text = 'cxDBCheckBox2'
+      CaptionOptions.Visible = False
+      Control = chkViolet
+      ControlOptions.OriginalHeight = 17
+      ControlOptions.OriginalWidth = 121
+      ControlOptions.ShowBorder = False
+      Index = 2
     end
   end
   object btnPost: TcxButton
@@ -1258,6 +1330,12 @@ object frmPEAMain: TfrmPEAMain
     object mdsEventsRibbons: TMemoField
       FieldName = 'Ribbons'
       BlobType = ftMemo
+    end
+    object mdsEventsScarlet: TBooleanField
+      FieldName = 'Scarlet'
+    end
+    object mdsEventsViolet: TBooleanField
+      FieldName = 'Violet'
     end
   end
   object dtsEvents: TDataSource

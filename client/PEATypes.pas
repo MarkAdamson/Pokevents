@@ -8,7 +8,7 @@ uses
 type
   TGame = (gaSun, gaMoon, gaUltraSun, gaUltraMoon, gaGO, gaSword, gaShield,
       gaLetsGoEevee, gaLetsGoPikachu, gaBrilliantDiamond, gaShiningPearl,
-      gaPLA, gaHome);
+      gaPLA, gaHome, gaScarlet, gaViolet);
   TGames = set of TGame;
   TGender = (geNone, geMale, geFemale);
   TRegion = (reWorldwide, reAmerica, reJapan, reEurope, reOther);
@@ -49,9 +49,9 @@ const
   GameName: array[TGame] of String =
     ('Sun', 'Moon', 'Ultra Sun', 'Ultra Moon', 'GO', 'Sword', 'Shield',
      'Let''s Go, Eevee!', 'Let''s Go, Pikachu!', 'Brilliant Diamond',
-     'Shining Pearl', 'Legends: Arceus', 'Home');
+     'Shining Pearl', 'Legends: Arceus', 'Home', 'Scarlet', 'Violet');
   GameCode: array[TGame] of String =
-    ('S','M','US','UM','GO','SW','SH','LGE','LGP','BD','SP','LA','HO');
+    ('S','M','US','UM','GO','SW','SH','LGE','LGP','BD','SP','LA','HO','SC','VI');
   GenderName: array[TGender] of String =
     ('None', 'Male', 'Female');
   RegionName: array[TRegion] of String =
