@@ -77,7 +77,7 @@ function onGenerateClick() {
   
   document.getElementById('link').value = calendar;
   
-  document.getElementById('linkdiv').style.visibility = 'visible';
+  document.getElementById('linkdiv').style.display = 'inline';
 }
 
 function onCopyClick() {
@@ -92,5 +92,5 @@ function refreshUI() {
   });
   enabled = enabled && currentCalendar.region != null;
   document.getElementById('generate').disabled = !enabled;
-  document.getElementById('linkdiv').style.visibility = 'hidden';
+  document.getElementById('linkdiv').style.display = 'none';
 }
