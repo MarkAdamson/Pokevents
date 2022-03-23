@@ -5,6 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="main.css">
+<script src="main.js"></script>
 </head>
 <body>
 
@@ -16,88 +17,35 @@
 <div class="row">
   <div class="column">
     <h2>1. Select your Region</h2>
-    <div>
-      <input type="radio" id="america" name="region" value="america">
-      <label for="america">America</label>
-    </div>
-    <div>
-      <input type="radio" id="europe" name="region" value="europe">
-      <label for="europe">Europe</label>
-    </div>
-    <div>
-      <input type="radio" id="japan" name="region" value="japan">
-      <label for="japan">Japan</label>
-    </div>
-    <div>
-      <input type="radio" id="other" name="region" value="other">
-      <label for="other">Other</label>
+    <div id="regions">
     </div>
   </div>
   
   <div class="column">
     <h2>2. Select your Games</h2>
-    <div>
-      <input type="checkbox" id="go" name="go">
-      <label for="go">GO</label>
-    </div>
-    <div>
-      <input type="checkbox" id="sword" name="sword">
-      <label for="sword">Sword</label>
-    </div>
-    <div>
-      <input type="checkbox" id="shield" name="shield">
-      <label for="shield">Shield</label>
-    </div>
-    <div>
-      <input type="checkbox" id="letsgopikachu" name="letsgopikachu">
-      <label for="letsgopikachu">Let's Go, Pikachu!</label>
-    </div>
-    <div>
-      <input type="checkbox" id="letsgoevee" name="letsgoevee">
-      <label for="letsgoevee">Let's Go, Eevee!</label>
-    </div>
-    <div>
-      <input type="checkbox" id="brilliantdiamond" name="brilliantdiamond">
-      <label for="brilliantdiamond">Brilliant Diamond</label>
-    </div>
-    <div>
-      <input type="checkbox" id="shiningpearl" name="shiningpearl">
-      <label for="shiningpearl">Shining Pearl</label>
-    </div>
-    <div>
-      <input type="checkbox" id="legendsarceus" name="legendsarceus">
-      <label for="legendsarceus">Legends: Arceus</label>
-    </div>
-    <div>
-      <input type="checkbox" id="home" name="home">
-      <label for="home">Home</label>
-    </div>
-    <div>
-      <input type="checkbox" id="scarlet" name="scarlet">
-      <label for="scarlet">Scarlet</label>
-    </div>
-    <div>
-      <input type="checkbox" id="violet" name="violet">
-      <label for="violet">Violet</label>
+    <div id="games">
     </div>
   </div>
   
   <div class="column">
     <h2>3. Generate your Calendar</h2>
-    <button type="button">
+    <button type="button" id="generate" onclick="onGenerateClick()">
       Generate!
     </button>
   </div>
 </div>
 
 <div class="topnav">
-  <!--<a href="#">Link</a>
-  <a href="#">Link</a>
-  <a href="#">Link</a>-->
-  <p>https://api-dev.pokevents.xyz/calendar</p>
+  <div id="linkdiv">
+    <h2>4. Copy your Calendar Link</h2>
+    <input type="textbox" id="link" readonly></input><button type="button" onclick="onCopyClick()"><!--&#10697;-->Copy</button><br>
+    <p>...and paste it into your calendar app!</p>
+  </div>
+</div>
+
+<div class="disclaimer">
+  <p>Pokémon and All Respective Names are Trademark & © of Nintendo 1996-2022.<br>Problem with the calendar? Events missing? <a href="mailto:pokeventscal@gmail.com">Let me know!</a></p>
 </div>
 
 </body>
 </html>
-
-
