@@ -86,8 +86,17 @@ begin
   Result := TCollections.CreateDictionary<String,TPokevent>;
 
   var URL := Format('%s/events', [API_URL]);
-  var Response := http.Get(URL);
-  var JResponse := TJSONObject.ParseJSONValue(Response) as TJSONArray;
+
+  var ResponseText := '';
+  var Response := TStringStream.Create('', TEncoding.UTF8);
+  try
+    http.Get(URL, Response);
+    ResponseText := Response.DataString;
+  finally
+    Response.Free;
+  end;
+
+  var JResponse := TJSONObject.ParseJSONValue(ResponseText) as TJSONArray;
   try
     for var i := 0 to JResponse.Count - 1 do
       Result.Add(TJSONObject(JResponse.Items[i]).GetValue<String>('ID'), JResponse.Items[i]);

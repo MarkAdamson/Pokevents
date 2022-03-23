@@ -76,6 +76,7 @@ begin
   OT := Null;
   TID := Null;
   Ability := Null;
+  HoldItem := Null;
   Nature := Null;
   Code := Null;
   Level := Null;
