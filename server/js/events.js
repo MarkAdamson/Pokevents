@@ -239,16 +239,8 @@ exports.calendar = async function(event, context, callback) {
       var endDate = new Date(2200,0,1)
     }
     
-    return {
-      id: pokevent.ID,
-      summary: pokevent.Title,
-      start: new Date(pokevent.StartDate.substring(0,10)),
-      end: endDate,
-      floating: true,
-      location: pokevent.Locations.join(", "),
-      busystatus: ical.ICalEventBusyStatus.FREE,
-      description:
-        pokevent.Description +
+    var description =
+      pokevent.Description +
         "\n\n" +
         "Games: " + pokevent.Games.map(game => GameNames[game]).join(", ") + "\n" +
         "Type: " + pokevent.Type + "\n" +
@@ -264,8 +256,20 @@ exports.calendar = async function(event, context, callback) {
         (pokevent.Nature ? "Nature: " + pokevent.Nature + "\n" : "") +
         (pokevent.Ability ? "Ability: " + pokevent.Ability + "\n" : "") +
         (pokevent.HoldItem ? "Hold Item: " + pokevent.HoldItem + "\n" : "") +
-        (pokevent.Moves && pokevent.Moves.length ? "Moves:\n" + pokevent.Moves.map(move => " • " + move).join("\n") + "\n" : "") +
-        "\nEdit your calendar: " + editLink
+        (pokevent.Moves && pokevent.Moves.length ? "Moves:\n" + pokevent.Moves.map(move => " • " + move).join("\n") + "\n" : "");
+    
+    return {
+      id: pokevent.ID,
+      summary: pokevent.Title,
+      start: new Date(pokevent.StartDate.substring(0,10)),
+      end: endDate,
+      floating: true,
+      location: pokevent.Locations.join(", "),
+      busystatus: ical.ICalEventBusyStatus.FREE,
+      description: {
+        plain: description + "\nEdit your calendar: " + editLink,
+        html: description.replaceAll('\n','<br>') + '<br><a href="'+editLink+'">Edit your calendar</a>'
+      }
     }
   }
     
