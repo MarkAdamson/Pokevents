@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dateformat": "^4.5.1",
     "ical-generator": "^3.2.1"
   }
 }

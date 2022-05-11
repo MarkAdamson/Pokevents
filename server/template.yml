@@ -64,6 +64,7 @@ Resources:
   EventsTable:
     Type: AWS::DynamoDB::Table
     Properties:
+      BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: ID
           AttributeType: S
@@ -79,12 +80,12 @@ Resources:
               KeyType: HASH
           Projection: 
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+          # ProvisionedThroughput:
+          #   ReadCapacityUnits: 5
+          #   WriteCapacityUnits: 5
+      # ProvisionedThroughput:
+      #   ReadCapacityUnits: 5
+      #   WriteCapacityUnits: 5
             
   GetCalendarFunction:
     Type: AWS::Serverless::Function

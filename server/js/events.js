@@ -5,6 +5,7 @@ aws.config.update({region: process.env.AWS_REGION});
 const ddb = new aws.DynamoDB.DocumentClient();
 
 const ical = require('ical-generator');
+const dateFormat = require('dateformat');
 
 const tblEvents = process.env.TBL_EVENTS;
 
@@ -219,11 +220,13 @@ exports.calendar = async function(event, context, callback) {
     gameValues[":game" + i] = game;
   });
   
+  var now = new Date();
+  
   var params = {
     TableName: tblEvents,
     FilterExpression: "(attribute_not_exists(EndDate) OR EndDate >= :today) AND (" + gameClauses.join(" OR ") + ")",
     ExpressionAttributeValues: Object.assign({
-      ":today": new Date().toISOString().substring(0,10)
+      ":today": now.toISOString().substring(0,10)
     }, gameValues)
   }
   
@@ -257,6 +260,13 @@ exports.calendar = async function(event, context, callback) {
         (pokevent.Ability ? "Ability: " + pokevent.Ability + "\n" : "") +
         (pokevent.HoldItem ? "Hold Item: " + pokevent.HoldItem + "\n" : "") +
         (pokevent.Moves && pokevent.Moves.length ? "Moves:\n" + pokevent.Moves.map(move => " • " + move).join("\n") + "\n" : "");
+        
+    var tweetText =
+      "Don't forget to collect your " + (pokevent.Shiny ? "Shiny " : pokevent.Gigantamax ? "Gigantamax " : "event ") + pokevent.Species +
+      ", available" + (pokevent.StartDate > now ? " from " + dateFormat(pokevent.StartDate, "dS mmmm") : " now") +
+      (pokevent.EndDate ? " until " + dateFormat(pokevent.EndDate, "dS mmmm") : "") + "!\nvia https://www.pokevents.xyz";
+        
+    var tweetLink = "https://twitter.com/intent/tweet?text=" + encodeURI(tweetText);
     
     return {
       id: pokevent.ID,
@@ -268,7 +278,7 @@ exports.calendar = async function(event, context, callback) {
       busystatus: ical.ICalEventBusyStatus.FREE,
       description: {
         plain: description + "\nEdit your calendar: " + editLink,
-        html: description.replaceAll('\n','<br>') + '<br><a href="'+editLink+'">Edit your calendar</a>'
+        html: '<html>' + description.replace(/(?:\r\n|\r|\n)/g, '<br>') + '<br><a href="' + tweetLink + '">Share on Twitter</a> | <a href="'+editLink+'">Edit your Calendar</a></html>'
       }
     }
   }
