@@ -262,9 +262,10 @@ exports.calendar = async function(event, context, callback) {
         (pokevent.Moves && pokevent.Moves.length ? "Moves:\n" + pokevent.Moves.map(move => " • " + move).join("\n") + "\n" : "");
         
     var tweetText =
-      "Don't forget to collect your " + (pokevent.Shiny ? "Shiny " : pokevent.Gigantamax ? "Gigantamax " : "event ") + pokevent.Species +
+      "Pokémon " + pokevent.Games.map(game => GameNames[game]).join("/") + " players, " +
+      "don't forget to collect your " + (pokevent.Shiny ? "Shiny " : pokevent.Gigantamax ? "Gigantamax " : "event ") + pokevent.Species +
       ", available" + (pokevent.StartDate > now ? " from " + dateFormat(pokevent.StartDate, "dS mmmm") : " now") +
-      (pokevent.EndDate ? " until " + dateFormat(pokevent.EndDate, "dS mmmm") : "") + "!\nvia https://www.pokevents.xyz";
+      (pokevent.EndDate ? " until " + dateFormat(pokevent.EndDate, "dS mmmm") : "") + "!\nvia https://www" + process.env.DOMAIN;
         
     var tweetLink = "https://twitter.com/intent/tweet?text=" + encodeURI(tweetText);
     
