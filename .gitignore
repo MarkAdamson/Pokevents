@@ -1,6 +1,6 @@
 
-client/__history/*
-client/API.pas
+admin/delphi/__history/*
+admin/delphi/API.pas
 *.dcu
 *.local
 *.identcache
