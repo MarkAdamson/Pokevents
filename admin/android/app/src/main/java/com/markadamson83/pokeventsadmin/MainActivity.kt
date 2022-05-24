@@ -10,11 +10,20 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModelProvider
+import com.markadamson83.pokeventsadmin.framework.PEAViewModelFactory
+import com.markadamson83.pokeventsadmin.presentation.MainViewModel
+import com.markadamson83.pokeventsadmin.ui.navigation.Navigation
 import com.markadamson83.pokeventsadmin.ui.theme.PokeventsAdminTheme
 
 class MainActivity : ComponentActivity() {
+    private lateinit var viewModel: MainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        viewModel = ViewModelProvider(this, PEAViewModelFactory).get(MainViewModel::class.java)
+
         setContent {
             PokeventsAdminTheme {
                 // A surface container using the 'background' color from the theme
@@ -22,7 +31,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+                    Navigation(viewModel = viewModel)
                 }
             }
         }
