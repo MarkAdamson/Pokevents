@@ -1,6 +1,7 @@
 package com.markadamson83.pokeventsadmin.framework
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.markadamson83.pokeventsadmin.data.EventsDatasource
 import com.markadamson83.pokeventsadmin.domain.Event
@@ -48,7 +49,7 @@ var createResultType = object : TypeToken<CreateResult>() {}.type
 
 class AWSEventsDatasource : EventsDatasource {
     private val http = OkHttpClient()
-    private val gson = Gson()
+    private val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create()
 
     override fun getEvents(): Map<String, Event> {
         val response = http.newCall(
