@@ -1,5 +1,6 @@
 package com.markadamson83.pokeventsadmin.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
@@ -140,11 +141,7 @@ internal fun EventsContent(viewModel: MainViewModel, navController: NavControlle
     }
 
     val sortedEvents = remember(events) {
-        val result: MutableMap<Region,List<Pair<String,Event>>> = mutableMapOf()
-        events.value?.value?.values?.map{ it.region }?.sorted()?.forEach { region ->
-            result[region] = events.value?.value?.toList()?.filter{ it.second.region == region }?.sortedBy{ it.second.startDate }!!
-        }
-        result.toMap()
+        events.value?.value?.entries?.sortedBy { it.value.startDate }?.groupBy { it.value.region }
     }
 
     SwipeRefresh(
@@ -156,8 +153,8 @@ internal fun EventsContent(viewModel: MainViewModel, navController: NavControlle
                 .fillMaxSize()
         ) {
 
-            sortedEvents.let { events ->
-                sortedEvents.keys.forEach{ region ->
+            sortedEvents?.let { events ->
+                events.keys.forEach{ region ->
                     stickyHeader {
                         Surface(
                             Modifier.fillMaxWidth(),
@@ -169,22 +166,22 @@ internal fun EventsContent(viewModel: MainViewModel, navController: NavControlle
                         }
                     }
 
-                    items(sortedEvents[region]!!) { event ->
+                    items(events[region]!!) { event ->
                         Column(
                             Modifier.combinedClickable(
                                 onClick = {
-                                    navController.navigate(Screen.EventScreen.withArgs(event.first))
+                                    navController.navigate(Screen.EventScreen.withArgs(event.key))
                                 },
                                 onLongClick = {
-                                    deleting = event.first
+                                    deleting = event.key
                                 }
                             )
                         ) {
                             Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                DateDisplay(event.second.startDate)
+                                DateDisplay(event.value.startDate)
                                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    Text(event.second.title)
-                                    Text(event.second.games.joinToString("/") { it.label }, style = MaterialTheme.typography.caption)
+                                    Text(event.value.title)
+                                    Text(event.value.games.joinToString("/") { it.label }, style = MaterialTheme.typography.caption)
                                 }
                             }
                             Divider()
@@ -196,15 +193,17 @@ internal fun EventsContent(viewModel: MainViewModel, navController: NavControlle
     }
 }
 
+@SuppressLint("SimpleDateFormat")
 @Composable
 internal fun DateDisplay(date: Date, modifier: Modifier = Modifier) {
+    val dateFormat = remember { SimpleDateFormat("MMM yyyy") }
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(date.date.toString(), style = MaterialTheme.typography.h4)
-        Text(SimpleDateFormat("MMM yyyy").format(date), style = MaterialTheme.typography.caption)
+        Text(dateFormat.format(date), style = MaterialTheme.typography.caption)
     }
 }
 
-@Preview()
+@Preview
 @Composable
 fun DatePreview() {
     DateDisplay(Date())
